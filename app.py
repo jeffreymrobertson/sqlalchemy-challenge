@@ -58,17 +58,51 @@ def precipitation():
 @app.route("/api/v1.0/stations")
 def stations():
     session = Session(engine)
-    station = session.query(Station.name).distinct().all()
+    results = session.query(Station.station).all()
     session.close()
-    # station_list = [place.asDict() for place in station]
-    return jsonify(station.dump())
+    station = list(np.ravel(results))
+    return jsonify(station)
 
 
-# @app.route("/api/v1.0/tobs")
+@app.route("/api/v1.0/tobs")
+def tobs():
+    query_date= dt.date(2017, 8 ,23) - dt.timedelta(days=365)
+    mvp = session.query(Station.station,Measurement.date, Measurement.tobs).\
+    filter(Station.id == 7 ,Measurement.date >= query_date).all()
+    most_active = []
+    for station, date, temp in mvp:
+        md = {}
+        md[date] = temp
+        most_active.append(md)
+        print(Measurement.date)
+    return jsonify(most_active)
+        
 
-# @app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/<start>")
+def tobsave(start): 
+    most_active = session.query(Measurement.tobs).\
+    filter(func.strftime("%Y-%m-%d",Measurement.date)==start).all()
+    ave_temp = []
+    for low, high, average in most_active:
+        temp_dict = {}
+        temp_dict["minimum temperature"]=low
+        temp_dict["max temperature"] = high
+        temp_dict["average temperature"] = average
+        ave_temp.append(temp_dict)
+    return jsonify(ave_temp)
 
-# @app.route("/api/v1.0/<start>/<end>")
-
+@app.route("/api/v1.0/<start>/<end>")
+def range(start,end):
+    most_active = session.query(Measurement.date,Measurement.tobs).\
+    filter(func.strftime("%Y-%m-%d",Measurement.date)>=start,func.strftime("%Y-%m-%d",Measurement.date)<=end).all()
+    ave_temp = []
+    for date, low, high, average in most_active:
+        temp_dict = {}
+        temp_dict["date"] = date
+        temp_dict["minimum temperature"]=low
+        temp_dict["max temperature"] = high
+        temp_dict["average temperature"] = average
+        ave_temp.append(temp_dict)
+    return jsonify(ave_temp)
 if __name__ == '__main__':
     app.run(debug=True)
