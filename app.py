@@ -82,27 +82,24 @@ def tobs():
 def tobsave(start): 
     most_active = session.query(Measurement.tobs).\
     filter(func.strftime("%Y-%m-%d",Measurement.date)==start).all()
-    ave_temp = []
-    for low, high, average in most_active:
-        temp_dict = {}
-        temp_dict["minimum temperature"]=low
-        temp_dict["max temperature"] = high
-        temp_dict["average temperature"] = average
-        ave_temp.append(temp_dict)
-    return jsonify(ave_temp)
+    low = np.min(most_active)
+    high = np.max(most_active)
+    average = np.mean(most_active)
+    tobs_data = []
+    tobs_dict = {start:{"Low":low,"High": high, "Average": average}}
+    tobs_data.append(tobs_dict)
+    return jsonify(tobs_data)
 
 @app.route("/api/v1.0/<start>/<end>")
 def range(start,end):
-    most_active = session.query(Measurement.date,Measurement.tobs).\
-    filter(func.strftime("%Y-%m-%d",Measurement.date)>=start,func.strftime("%Y-%m-%d",Measurement.date)<=end).all()
+    most_active = session.query(Measurement.date,func.min(Measurement.tobs),func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+    filter(func.strftime("%Y-%m-%d",Measurement.date)>=start,func.strftime("%Y-%m-%d",Measurement.date)<=end).\
+        group_by(Measurement.date).all()
     ave_temp = []
-    for date, low, high, average in most_active:
-        temp_dict = {}
-        temp_dict["date"] = date
-        temp_dict["minimum temperature"]=low
-        temp_dict["max temperature"] = high
-        temp_dict["average temperature"] = average
-        ave_temp.append(temp_dict)
+    for date, min, max, ave in most_active:
+        result = {}
+        result[date] = {"Low": min, "High": max, "Average": ave}
+        ave_temp.append(result)
     return jsonify(ave_temp)
 if __name__ == '__main__':
     app.run(debug=True)
