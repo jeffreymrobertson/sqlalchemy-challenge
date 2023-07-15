@@ -39,7 +39,14 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     print("Server received request for 'Home' page...")
-    return "Welcome to the Weather API!"
+    return (f"Welcome to the Weather API!<br/>"
+            f"Available paths:<br/>"
+            f"/api/v1.0/precipitation<br/>"
+            f"/api/v1.0/stations<br/>"
+            f"/api/v1.0/tobs<br/>"
+            f"/api/v1.0/<start><br/>"
+            f"Note: Date format: (yyyy-mm-dd)<br/>"
+            f"/api/v1.0/<start>/<end>")
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
@@ -76,6 +83,7 @@ def tobs():
         most_active.append(md)
         print(Measurement.date)
     return jsonify(most_active)
+
         
 
 @app.route("/api/v1.0/<start>")
