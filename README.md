@@ -4,9 +4,7 @@
 
 ## Project Description
 Analysis and output of weather readings
-A comprehensive analysis of of climate in Honolulu, Hawaii with the objective of using different methods of coding <br>
-including: python, matplotlib, SQLALCHEMY and FLASK.  The output includes weather measurements that have been stored in a SQL <br>
-database and then pulled from an API
+A comprehensive analysis of of climate in Honolulu, Hawaii with the objective of using different methods of coding including: python, matplotlib, SQLALCHEMY and FLASK.  The output includes weather measurements that have been stored in a SQL database and then pulled from an API.
 
 
 # Usage
